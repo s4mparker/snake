@@ -5,7 +5,7 @@ from enum import Enum
 
 """ Packaging """
 
-__all__ = ['Direction', 'CellStatus']
+__all__ = ['Direction', 'Tag']
 
 class Direction(Enum):
     LEFT  = 'left'
@@ -13,9 +13,8 @@ class Direction(Enum):
     UP    = 'up'
     DOWN  = 'down'
 
-class CellStatus(Enum):
-    FREE       = 'free'
-    SNAKE_BODY = 'snake_body'
-    SNAKE_HEAD = 'snake_head'
-
+class Tag(Enum):
+    HEAD  = 'head'
+    BODY  = 'body'
+    APPLE = 'apple'
 
