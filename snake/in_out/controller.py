@@ -1,70 +1,50 @@
 
 """ Importing """
 
-from threading import Timer, Event
-from pygame import KEYDOWN
+from ..           import Direction
+from threading    import Timer, Event
+from pygame       import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, K_w, K_s, K_a, K_d
 from pygame.event import get
 
 """ Packaging """
 
-__all__ = ['Controller', 'ControllerMapping']
-
-class ControllerMapping:
-
-    def __init__(self):
-        """ Create a new ControllerMapping object """
-
-        self.mapping = {}
-
-    def addMapping(self, key, action):
-        """ Add a new mapping to a ControllerMapping object """
-
-        if key in self.mapping.keys():
-            raise ValueError(f'invalid key mapping - there already exists a {str(key)} key mapping')
-        self.mapping[key] = action
-        
-    def hasMapping(self, key):
-        """ Determine whether a ControllerMapping object has a mapping for a given key """
-
-        return key in self.mapping.keys()
-    
-    def getMapping(self, key):
-        """ Get the mapping for a given key from a ControllerMapping object """
-
-        return self.mapping.get(key, None)
+__all__ = ['Controller']
 
 class Controller:
 
-    def __init__(self, time, mapping, initial_move, verbose=False):
-        """ Create a new Controller object 
+    def __init__(self, period, move):
+        """ Create a new controller 
         
         Parameters:
-            time         (int)               : time available for the controller to provide a move
-            mapping      (ControllerMapping) : key mapping
-            initial_move (Direction)         : controller's initial / default move
-            verbose      (bool)              : verbose option
+            period (float)     : time available for the controller to provide a move
+            move   (Direction) : the controller's initial move
         """
 
-        self.time    = time
-        self.mapping = mapping
-        self.move    = initial_move
-        self.verbose = verbose
+        self.period  = period
+        self.move    = move
+        self.mapping = {
+            K_UP    : Direction.UP,
+            K_w     : Direction.UP,
+            K_DOWN  : Direction.DOWN,
+            K_s     : Direction.DOWN,
+            K_LEFT  : Direction.LEFT,
+            K_a     : Direction.LEFT,
+            K_RIGHT : Direction.RIGHT,
+            K_d     : Direction.RIGHT
+        }
 
-        # Timing components
-        self.flag  = Event()
+        # Timing component
+        self.flag    = Event()
 
     def poll(self):
         """ Poll a controller for an input """
 
-        # Reset the event flag and start the timer
         self.flag.clear()
-        Timer(self.time, lambda: self.flag.set()).start()
+        Timer(self.period, lambda: self.flag.set()).start()
 
-        # Process any incoming keydown events
         while not self.flag.is_set():
             for key in [event.key for event in get(eventtype=KEYDOWN)]:
-                if self.mapping.hasMapping(key):
-                    self.move = self.mapping.getMapping(key)
+                if key in self.mapping:
+                    self.move = self.mapping.get(key)
 
-        if self.verbose:
-            print(f'move: {self.move.value}')
+        return self.move
