@@ -1,10 +1,9 @@
 
 """ Importing """
 
-from ..             import Parameters, Tag
+from ..             import Parameters
 from pygame         import get_init, init, Surface
 from pygame.display import set_mode, flip
-from pygame.draw    import polygon
 
 """ Packaging """
 
@@ -13,62 +12,52 @@ __all__ = ['Display']
 class Display:
 
     def __init__(self, display_parameters):
-        """ Create a new display """
+        """ Create a new display 
+        
+        Parameters: TBC
+        """
 
+        params           = Parameters.import_file(filename=display_parameters)
+        
         if not get_init() : init()
+        self.screen      = set_mode((params.get('WIDTH'), params.get('HEIGHT')))
 
-        self.params     = Parameters(filename=display_parameters)
-        self.screen     = set_mode((self.params.width, self.params.height))
-        self.game       = None
-        self.components = {}
+        self.components  = []
+        self.colours     = {name: Display.hexToRGB(colour=colour) for (name, colour) in params.get('COLOURS')}
 
-    def initialize(self, game, width, height):
+    def initialize(self, game):
         """ Initialize a display """
 
-        self.game = game
+        w, h    = game.map.size()
+        cw, ch  = self.screen.get_width() // w, self.screen.get_height() // h
 
-        cw     = int(self.params.width / width)
-        ch     = int(self.params.height / height)
+        surface = Surface((cw, ch))
 
-        bmin = self.params.border
-        bmax = 1 - self.params.border
-
-        points = [(bmin * cw, bmin * ch), (bmax * cw, bmin * ch), (bmax * cw, bmax * ch), (bmin * cw, bmax * ch)]
-
-        base = Surface((cw, ch))
-        base.fill(color=Display.hexToRGB('000000'))
-        sub_base = polygon(surface=base, color=Display.hexToRGB('FFFFFF'), points=points)
-
-        self.components.update({None: base})
-
-        for tag in Tag:
-            name       = tag.value
-            colour_hex = getattr(self.params, name)
-            colour_rgb = Display.hexToRGB(colour_hex)
-
-            component = base.copy()
-            component.fill(color=colour_rgb, rect=sub_base)
-            self.components.update({tag: component})
+        for cell in game.map:
+            cell_surface = surface.copy()
+            cell_rect    = cell_surface.get_rect()
+            cell_rect.update(cell.x * cw, cell.y * ch, cw, ch)
+            self.components.append((cell, cell_surface, cell_rect))
 
     def update(self):
         """ Update a display """
 
-        self.screen.fill(Display.hexToRGB('000000'))
+        self.screen.fill(color=Display.hexToRGB('000000'))
 
-        for cell in self.game:
-            key = None
-            
-            if cell.has():
-                key = cell.get().getTag()
-            
-            component      = self.components[key]
-            w, h = component.get_width(), component.get_height()
+        for (cell, surface, rect) in self.components:
+            entity      = cell.getEntity()
 
-            component_rect = component.get_rect()
-            component_rect.update(cell.x * w, cell.y * h, w, h)
+            if entity is None:
+                surface.fill(color=Display.hexToRGB('FFFFFF'))
+            else:
+                entity_type = type(entity).__name__
+                if entity_type in self.colours:
+                    surface.fill(color=self.colours.get(entity_type))
+                else:
+                    raise KeyError(f'unrecognised colour provided ({entity_type})')
 
-            self.screen.blit(component, component_rect)
-            
+            self.screen.blit(surface, rect)
+
         flip()
 
     @staticmethod
