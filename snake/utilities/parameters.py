@@ -11,59 +11,55 @@ __all__ = ['Parameters']
 
 class Parameters:
 
-    ACCEPTS = [int, float, str, bool]
-
-    def __init__(self, filename):
-        """ Create a new Parameters object 
+    @staticmethod
+    def import_file(filename):
+        """ Import an external file 
         
         Parameters:
-            filename (str) : file containing parameters
-        """
-
-        extension = splitext(filename)[1]
-        
-        with open(filename, mode='r') as file:
-            data = None
-            match extension:
-                case '.json' : data = json.load(file)
-                case '.yaml' : data = yaml.load(file, Loader=yaml.SafeLoader)
-                case _       : raise ValueError(f'unrecognized filetype - {extension}')
-            self.add(**data)
-            
-    def __str__(self):
-        """ Return a string representation of a Parameters object """
-
-        parameter_str = ''
-        for (name, value) in self.__dict__.items():
-            parameter_str += f'{str(name):<10}: {str(value):<10} ({type(value).__name__})\n'
-        return parameter_str
-
-    def add(self, **parameters):
-        """ Add a parameters to an existing Parameters object
-        
-        Parameters:
-            **parameters: (name, value) pairs
-        """
-
-        for (name, value) in parameters.items():
-            if type(value) not in self.ACCEPTS:
-                raise TypeError(f'unexpected type - recieved a {type(value)}, only accepts {", ".join([t.__name__ for t in self.ACCEPTS])}')
-            
-            setattr(self, name, value)
-
-    def export(self, filename):
-        """ Export a Parameters object to an external file 
-        
-        Parameters:
-            filename (str) : outputted filename
+            filename (str) : external file
         """
 
         extension = splitext(filename)[1]
 
-        with open(filename, mode='w') as file:
-            data = self.__dict__
+        with open(file=filename, mode='r') as file:
             match extension:
-                case '.json' : json.dump(data, file, indent=2)
-                case '.yaml' : yaml.dump(data, file, Dumper=yaml.SafeDumper)
-                case _       : raise ValueError(f'unrecognized filetype - {extension}')
-                
+                case '.json' : return json.load(fp=file)
+                case '.yaml' : return yaml.load(stream=file, Loader=yaml.SafeLoader)
+                case _       : raise ValueError(f'unrecognized filetype ({extension})')
+
+    @staticmethod
+    def export_file(object, filename):
+        """ Export an object to an external file 
+        
+        Parameters:
+            object   (Object) : python object
+            filename (str)    : external file
+        """
+
+        extension = splitext(filename)[1]
+
+        with open(file=filename, mode='w') as file:
+            match extension:
+                case '.json' : json.dump(obj=object, fp=file, indent=4)
+                case '.yaml' : yaml.dump(data=object, stream=file, Dumper=yaml.SafeDumper, sort_keys=False, canonical=True)
+                case _       : raise ValueError(f'unrecognized filetype ({extension})')
+
+if __name__ == '__main__':
+    data = {
+        'WIDTH': 40,
+        'HEIGHT': 40,
+        'STARTX': 20,
+        'STARTY': 20,
+        'DIRECTION': 'left',
+        'PERIOD': 0.1
+    }
+
+    Parameters.export_file(data, '../../parameters/game.yaml')
+
+    data = {
+        'WIDTH': 280,
+        'HEIGHT': 280,
+        'COLOURS' : [('SnakeHead', '0101FF'), ('SnakeBody', '010188')]
+    }
+
+    Parameters.export_file(data, '../../parameters/display.yaml')
