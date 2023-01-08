@@ -1,0 +1,18 @@
+---
+!!map {
+  ? !!str "WIDTH"
+  : !!int "280",
+  ? !!str "HEIGHT"
+  : !!int "280",
+  ? !!str "COLOURS"
+  : !!seq [
+    !!seq [
+      !!str "SnakeHead",
+      !!str "0101FF",
+    ],
+    !!seq [
+      !!str "SnakeBody",
+      !!str "010188",
+    ],
+  ],
+}
