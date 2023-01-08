@@ -1,7 +1,7 @@
 
 """ Importing """
 
-from .. import Tag
+pass
 
 """ Packaging """
 
