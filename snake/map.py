@@ -10,19 +10,45 @@ __all__ = ['Map', 'Cell']
 
 class Map:
 
-    @staticmethod
-    def generate(width, height):
-        """ Generate a map of cells """
+    def __init__(self, width, height):
+        """ Create a new map 
+        
+        Parameters: TBC
+        """
 
-        map = [[Cell() for y in range(height)] for x in range(width)]
+        self.width  = width
+        self.height = height
+        self.cells  = [[Cell() for y in range(height)] for x in range(width)]
+
         for (x, y) in product(range(width), range(height)):
-            left  = map[x-1][y] if x > 0 else None
-            right = map[x+1][y] if x < width - 1 else None
-            up    = map[x][y-1] if y > 0 else None
-            down  = map[x][y+1] if y < height - 1 else None
-            map[x][y].localize(x, y, left, right, up, down)
+            left  = self.cells[x-1][y] if x > 0 else None
+            right = self.cells[x+1][y] if x < width - 1 else None
+            up    = self.cells[x][y-1] if y > 0 else None
+            down  = self.cells[x][y+1] if y < height - 1 else None
+            self.cells[x][y].localize(x, y, left, right, up, down)
 
-        return map
+    def __iter__(self):
+        """ Return an iterator over a map """
+
+        return iter([cell for row in self.cells for cell in row])
+
+    def at(self, x, y):
+        """ Return the cell at a given position within a map 
+        
+        Parameters: TBC
+        """
+
+        if x < 0 or x >= self.width:
+            raise IndexError(f'out of range')
+        if y < 0 or y >= self.width:
+            raise IndexError(f'out of range')
+
+        return self.cells[x][y]
+
+    def size(self):
+        """ Return a map's size (W x H) """
+
+        return self.width, self.height
 
 class Cell:
 
@@ -49,22 +75,22 @@ class Cell:
 
         return hash(self.id)
 
-    def set(self, entity):
+    def setEntity(self, entity):
         """ Set a cell's entity """
 
         self.entity = entity
 
-    def get(self):
+    def getEntity(self):
         """ Get a cell's entity """
 
         return self.entity
 
-    def has(self):
+    def hasEntity(self):
         """ Return True / False based on whether a cell contains an entity """
 
         return self.entity is not None
 
-    def clear(self):
+    def clearEntity(self):
         """ Clear a cell's entity """
 
         self.entity = None
