@@ -9,39 +9,30 @@ __all__ = ['Entity']
 
 class Entity:
 
-    tag = None
+    blocks = False
 
-    def __init__(self):
-        """ Create a new entity
-        
-        Parameters: TBC
-        """
+    def __init__(self, cell=None):
+        """ Create a new entity """
 
-        self.cell      = None
+        self.cell = cell
 
     def move(self, cell):
         """ Move an entity to a new cell 
         
-        Parameters: TBC
+        Parameters:
+            cell (Cell) : the new cell into which the move the entity
         """
 
-        if self.cell:
-            self.cell.clear()
+        if self.cell : self.cell.clearEntity()
         self.cell = cell
-        self.cell.set(self)
+        self.cell.setEntity(self)
 
     def get(self):
-        """ Retrieve the cell an entity belongs to """
+        """ Retrieve the cell an entity is in """
 
         return self.cell
 
-    @classmethod
-    def setTag(cls, tag):
-        """ Set an entity class' tag """
+    def doesBlock(self):
+        """ Returns True / False depending on whether the entity blocks its current cell """
 
-        cls.tag = tag
-
-    def getTag(self):
-        """ Get the tag associated with an entity """
-
-        return self.tag
+        return self.blocks
