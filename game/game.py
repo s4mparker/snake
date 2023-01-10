@@ -1,7 +1,7 @@
 
 """ Importing """
 
-from .      import Parameters, Messages, Map, Cell, Display, Snake, Direction
+from .      import Parameters, MessageHandler, Message, Map, Display, Snake, Direction
 from random import choice
 from time   import sleep
 
@@ -25,14 +25,14 @@ class Game:
         params          = Parameters.import_file(filename=game_parameters)
 
         # Game components
-        self.messages   = Messages('game', 'snake', 'apple')
+        self.messages   = MessageHandler()
         self.map        = Map(params.get('WIDTH'), params.get('HEIGHT'))
         self.snake      = Snake(self.messages, self.map.at(x=params.get('STARTX'), y=params.get('STARTY')))
 
         # Game state
-        self.score      = 0
-        self.gameover   = False
-        self.lengthen   = False
+        self.score       = 0
+        self.game_active = True
+        self.lengthen    = False
 
         # Game controller
         move = Direction(params.get('INITIAL'))
@@ -50,12 +50,14 @@ class Game:
     def begin(self):
         """ Begin execution of the game """
 
-        i = 30
+        i = 100
 
-        while not self.gameover and i > 0:
-            
-
+        while self.game_active and i > 0:
             move = self.controller.poll()
             self.snake.update(move)
+
+            for message in self.messages.get(Message.GAMEOVER, Message.ADD10):
+                message(self)
+
             if self.display : self.display.update()
             i -= 1

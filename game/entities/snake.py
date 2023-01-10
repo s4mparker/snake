@@ -2,6 +2,7 @@
 """ Importing """
 
 from .  import Entity
+from .. import Message
 
 """ Packaging """
 
@@ -13,7 +14,6 @@ class Snake:
         """ Create a new snake """
 
         self.messages = messages
-
         self.head     = SnakeHead(cell=cell)
         self.body     = []
 
@@ -24,10 +24,10 @@ class Snake:
         future  = present.neighbour(direction=direction)
 
         if future is None:
-            self.messages.put(lambda x: setattr(x, 'gameover', True), 'snake')
+            self.messages.put(Message.GAMEOVER)
             return
         elif future.hasEntity() and future.getEntity().doesBlock():
-            self.messages.put(lambda x: setattr(x, 'gameover', True), 'snake')
+            self.messages.put(Message.GAMEOVER)
             return
         else:
             self.head.move(future)
@@ -37,11 +37,11 @@ class Snake:
             present = body.get()
             body.move(future)
 
-        if self.messages.has('snake'):
-            body = SnakeBody()
-            self.body.append(body)
-            body.move(present)
-            self.messages.get('snake')
+        # if self.messages.has('snake'):
+        #     body = SnakeBody()
+        #     self.body.append(body)
+        #     body.move(present)
+        #     self.messages.get('snake')
 
 class SnakeBody(Entity):
 
