@@ -1,15 +1,6 @@
----
-!!map {
-  ? !!str "WIDTH"
-  : !!int "40",
-  ? !!str "HEIGHT"
-  : !!int "40",
-  ? !!str "STARTX"
-  : !!int "20",
-  ? !!str "STARTY"
-  : !!int "20",
-  ? !!str "INITIAL"
-  : !!str "left",
-  ? !!str "PERIOD"
-  : !!float "0.1",
-}
+WIDTH: 20
+HEIGHT: 20
+STARTX: 10
+STARTY: 10
+DIRECTION: right
+PERIOD: 0.1
