@@ -56,11 +56,11 @@ class Display:
 
         self.screen.fill(color=white)
 
-        for (cell, surface, rect) in self.components:
-            if not cell:
+        for (component, surface, rect) in self.components:
+            if not component.has():
                 surface.fill(color=black)
             else:
-                entity = type(cell.get()).__name__
+                entity = type(component.get()).__name__
                 colour = self.colours.get(entity, None)
                 if colour:
                     surface.fill(color=colour)

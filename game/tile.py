@@ -32,7 +32,7 @@ class Tile:
 
         return hash(self.id)
 
-    def __bool__(self):
+    def has(self):
         """ Determine whether a tile has been assigned an entity """
 
         return self.entity is not None
