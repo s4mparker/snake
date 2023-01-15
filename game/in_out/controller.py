@@ -45,6 +45,8 @@ class Controller:
         while not self.flag.is_set():
             for key in [event.key for event in get(eventtype=KEYDOWN)]:
                 if key in self.mapping:
-                    self.move = self.mapping.get(key)
+                    move = self.mapping.get(key)
+                    if move != self.move.opposite():
+                        self.move = move
 
         return self.move
