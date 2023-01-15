@@ -9,5 +9,6 @@ from .utilities import * # sub-package
 from .entities  import * # sub-package
 from .in_out    import * # sub-package
 
+from .state     import *
 from .map       import *
 from .game      import *
