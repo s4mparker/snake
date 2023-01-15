@@ -25,7 +25,7 @@ class GameState:
 
         return self.active
 
-    def __add__(self, value):
+    def __iadd__(self, value):
         """ Add a given value to a game state's score """
 
         self.score += value
