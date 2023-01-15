@@ -7,4 +7,4 @@ pass
 
 from .entity import *
 from .snake  import *
-
+from .apple  import *

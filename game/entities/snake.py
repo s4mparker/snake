@@ -1,11 +1,11 @@
 
 """ Importing """
 
-from .  import Entity, ConsumeException
+from . import Entity, ConsumeException
 
 """ Packaging """
 
-__all__ = ['Snake', 'SnakeHead', 'SnakeBody']
+__all__ = ['Snake', 'SnakeHead', 'SnakeEntity']
 
 class Snake:
 
@@ -36,17 +36,25 @@ class Snake:
         if future_tile is None:
             self.state.active = False
             return
-        if future_tile:
+
+        bonus = 0
+        if future_tile.has():
             try:
-                self.state.score += future_tile.get().consume()
+                bonus = future_tile.get().consume()
             except ConsumeException:
                 self.state.active = False
                 return
+        self.state.score += bonus
 
         for component in self.components:
-            temp = component.get()
+            current_tile = component.get()
             component.set(future_tile)
-            future_tile = temp
+            future_tile = current_tile
+
+        if bonus > 0:
+            new = SnakeEntity()
+            new.set(current_tile)
+            self.components.append(new)
 
 class SnakeEntity(Entity):
 

@@ -2,7 +2,7 @@
 """ Importing """
 
 from .      import Parameters, Display, Direction
-from .      import Snake
+from .      import Snake, Apple, AppleManager
 from .      import TileMap, GameState
 
 """ Packaging """
@@ -24,14 +24,15 @@ class Game:
         params          = Parameters.import_file(filename=parameters)
         width, height   = params.get('WIDTH'), params.get('HEIGHT')
         x, y            = params.get('STARTX'), params.get('STARTY')
-        move            = params.get('INITIAL')
+        move            = params.get('DIRECTION')
         period          = params.get('PERIOD')
 
         # Game components
         self.state      = GameState()
         self.map        = TileMap(width=width, height=height)
         start           = self.map.at(x=x, y=y)
-        self.snake      = Snake(state=self.state, cell=start)
+        self.snake      = Snake(state=self.state, tile=start)
+        self.apple      = AppleManager.spawn(map=self.map)
 
         # Game controller
         self.controller = controller(period=period, move=Direction(value=move))
@@ -44,13 +45,14 @@ class Game:
     def play(self):
         """ Play a single game """
 
-        i = 100
-
-        while self.state and i > 0:
+        while self.state:
             move = self.controller.poll()
             self.snake.apply(move=move)
+            
+            if not self.apple:
+                self.apple = AppleManager.spawn(map=self.map)
 
             if self.display:
                 self.display.update()
 
-            i -= 1
+        return self.state.score
