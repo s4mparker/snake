@@ -6,7 +6,7 @@ from itertools import product
 
 """ Packaging """
 
-__all__ = ['Map']
+__all__ = ['TileMap']
 
 class TileMap:
 
@@ -23,12 +23,12 @@ class TileMap:
 
         self.tiles  = [[Tile(x=x, y=y) for y in range(height)] for x in range(width)]
         for (x, y) in product(range(width), range(height)):
-            self.tiles[x][y].localize(left=self.at(x-1, y), right=self.at(x+1, y), up=self.at(x, y-1), down=self.at(x, y+1))
+            self.tiles[x][y].localize(left=self.at(x-1, y, default=None), right=self.at(x+1, y, default=None), up=self.at(x, y-1, default=None), down=self.at(x, y+1, default=None))
 
     def __iter__(self):
         """ Return an iterator over a map's cells """
 
-        return iter([cell for row in self.cells for cell in row])
+        return iter([tile for row in self.tiles for tile in row])
 
     def at(self, x, y, **kwargs):
         """ Return the cell at a given position within a map 
@@ -52,7 +52,7 @@ class TileMap:
             else:
                 raise IndexError(f'out of range')
         else:
-            return self.cells[x][y]
+            return self.tiles[x][y]
 
     def size(self):
         """ Return a map's size (W x H) """
