@@ -1,9 +1,9 @@
 
 """ Importing """
 
-from .      import Parameters, MessageHandler, Message, Map, Display, Snake, Direction
-from random import choice
-from time   import sleep
+from .      import Parameters, Display, Direction
+from .      import Snake
+from .      import TileMap, GameState
 
 """ Packaging """
 
@@ -11,53 +11,46 @@ __all__ = ['Game']
 
 class Game:
 
-    """ TODO
-    
-    
-    """
-
-    def __init__(self, game_parameters, controller, display=False, display_parameters=None):
+    def __init__(self, parameters, controller, display=None):
         """ Create a new game 
         
-        Parameters: TBC
+        Parameters:
+            parameters (str)        : game parameters
+            controller (Controller) : a controller class with which to play the game
+            display    (str)        : display parameters
         """
 
-        params          = Parameters.import_file(filename=game_parameters)
+        # Game parameters
+        params          = Parameters.import_file(filename=parameters)
+        width, height   = params.get('WIDTH'), params.get('HEIGHT')
+        x, y            = params.get('STARTX'), params.get('STARTY')
+        move            = params.get('INITIAL')
+        period          = params.get('PERIOD')
 
         # Game components
-        self.messages   = MessageHandler()
-        self.map        = Map(params.get('WIDTH'), params.get('HEIGHT'))
-        self.snake      = Snake(self.messages, self.map.at(x=params.get('STARTX'), y=params.get('STARTY')))
-
-        # Game state
-        self.score       = 0
-        self.game_active = True
-        self.lengthen    = False
+        self.state      = GameState()
+        self.map        = TileMap(width=width, height=height)
+        start           = self.map.at(x=x, y=y)
+        self.snake      = Snake(state=self.state, cell=start)
 
         # Game controller
-        move = Direction(params.get('INITIAL'))
-        self.controller = controller(period=params.get('PERIOD'), move=move)
+        self.controller = controller(period=period, move=Direction(value=move))
 
-        # Game display (if required)
-        if display and not display_parameters:
-            raise ValueError(f'no display parameters provided')
-        elif not display and display_parameters:
-            raise ValueError(f'display parameters provided but no display enabled')
-        
-        self.display = Display(display_parameters=display_parameters) if display else None
-        if self.display : self.display.initialize(game=self)
+        # Game display
+        self.display = Display(parameters=display) if display else None
+        if self.display:
+            self.display.initialize(game=self)
 
-    def begin(self):
-        """ Begin execution of the game """
+    def play(self):
+        """ Play a single game """
 
         i = 100
 
-        while self.game_active and i > 0:
+        while self.state and i > 0:
             move = self.controller.poll()
-            self.snake.update(move)
+            self.snake.apply(move=move)
 
-            for message in self.messages.get(Message.GAMEOVER, Message.ADD10):
-                message(self)
+            if self.display:
+                self.display.update()
 
-            if self.display : self.display.update()
             i -= 1
