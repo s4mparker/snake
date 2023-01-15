@@ -5,7 +5,7 @@ from enum import Enum
 
 """ Packaging """
 
-__all__ = ['Direction', 'Message']
+__all__ = ['Direction']
 
 class Direction(Enum):
     LEFT  = 'left'
