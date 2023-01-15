@@ -2,7 +2,10 @@
 """ Importing """
 
 from game import *
+from sys  import argv
 
 if __name__ == '__main__':
-    game = Game(game_parameters='parameters/game.yaml', controller=Controller, display=True, display_parameters='parameters/display.yaml')
-    game.begin()
+    if len(argv) != 3:
+        raise RuntimeError(f'expected two command line arguments\n\tpython3 run.py [game-parameters] [display-parameters]')
+    game = Game(parameters=argv[1], controller=Controller, display=argv[2])
+    game.play()
