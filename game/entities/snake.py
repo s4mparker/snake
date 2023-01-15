@@ -1,8 +1,7 @@
 
 """ Importing """
 
-from .  import Entity
-from .. import Message
+from .  import Entity, ConsumeException
 
 """ Packaging """
 
@@ -10,43 +9,52 @@ __all__ = ['Snake', 'SnakeHead', 'SnakeBody']
 
 class Snake:
 
-    def __init__(self, messages, cell):
-        """ Create a new snake """
+    def __init__(self, state, tile):
+        """ Create a new snake
+        
+        Parameters:
+            state (State) : the associated game's state
+            tile  (Tile)  : the snake's starting tile
+        """
 
-        self.messages = messages
-        self.head     = SnakeHead(cell=cell)
-        self.body     = []
+        self.state = state
 
-    def update(self, direction):
-        """ Perform a snake update """
+        head = SnakeHead()
+        head.set(tile=tile)
+        self.components = [head]
 
-        present = self.head.get()
-        future  = present.neighbour(direction=direction)
+    def apply(self, move):
+        """ Apply a move to a snake
+        
+        Parameters:
+            move (Direction) : the move to apply to the snake
+        """
 
-        if future is None:
-            self.messages.put(Message.GAMEOVER)
+        current_tile = self.components[0].get()
+        future_tile  = current_tile.neighbour(direction=move)
+
+        if future_tile is None:
+            self.state.active = False
             return
-        elif future.hasEntity() and future.getEntity().doesBlock():
-            self.messages.put(Message.GAMEOVER)
-            return
-        else:
-            self.head.move(future)
+        if future_tile:
+            try:
+                self.state.score += future_tile.get().consume()
+            except ConsumeException:
+                self.state.active = False
+                return
 
-        for body in self.body:
-            future  = present
-            present = body.get()
-            body.move(future)
+        for component in self.components:
+            temp = component.get()
+            component.set(future_tile)
+            future_tile = temp
 
-        # if self.messages.has('snake'):
-        #     body = SnakeBody()
-        #     self.body.append(body)
-        #     body.move(present)
-        #     self.messages.get('snake')
+class SnakeEntity(Entity):
 
-class SnakeBody(Entity):
+    def consume(self):
+        """ Consume a snake entity object """
 
-    blocks = True
+        raise ConsumeException(f'cannot consume a snake object -> game over!')
 
-class SnakeHead(Entity):
+class SnakeHead(SnakeEntity):
 
-    blocks = True
+    pass

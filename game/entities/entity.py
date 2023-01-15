@@ -5,34 +5,38 @@ pass
 
 """ Packaging """
 
-__all__ = ['Entity']
+__all__ = ['Entity', 'ConsumeException']
 
 class Entity:
 
-    blocks = False
-
-    def __init__(self, cell=None):
+    def __init__(self):
         """ Create a new entity """
 
-        self.cell = cell
+        self.tile = None
 
-    def move(self, cell):
-        """ Move an entity to a new cell 
+    def set(self, tile):
+        """ Set an entity's assigned tile
         
         Parameters:
-            cell (Cell) : the new cell into which the move the entity
+            tile (Tile) : the tile to be occupied
         """
 
-        if self.cell : self.cell.clearEntity()
-        self.cell = cell
-        self.cell.setEntity(self)
+        if self.tile:
+            self.tile.clear()
+        if tile:
+            tile.set(entity=self)
+        self.tile = tile
 
     def get(self):
-        """ Retrieve the cell an entity is in """
+        """ Get an entity's assigned tile """
 
-        return self.cell
+        return self.tile
 
-    def doesBlock(self):
-        """ Returns True / False depending on whether the entity blocks its current cell """
+    def consume(self):
+        """ Consume an entity """
 
-        return self.blocks
+        raise NotImplementedError(f'consume() must be defined by a subclass class')
+
+class ConsumeException(Exception):
+
+    pass
