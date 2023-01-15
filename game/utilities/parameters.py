@@ -41,25 +41,5 @@ class Parameters:
         with open(file=filename, mode='w') as file:
             match extension:
                 case '.json' : json.dump(obj=object, fp=file, indent=4)
-                case '.yaml' : yaml.dump(data=object, stream=file, Dumper=yaml.SafeDumper, sort_keys=False, canonical=True)
+                case '.yaml' : yaml.dump(data=object, stream=file, Dumper=yaml.SafeDumper, sort_keys=False)
                 case _       : raise ValueError(f'unrecognized filetype ({extension})')
-
-if __name__ == '__main__':
-    data = {
-        'WIDTH': 40,
-        'HEIGHT': 40,
-        'STARTX': 20,
-        'STARTY': 20,
-        'DIRECTION': 'left',
-        'PERIOD': 0.1
-    }
-
-    Parameters.export_file(data, '../../parameters/game.yaml')
-
-    data = {
-        'WIDTH': 280,
-        'HEIGHT': 280,
-        'COLOURS' : [('SnakeHead', '0101FF'), ('SnakeBody', '010188')]
-    }
-
-    Parameters.export_file(data, '../../parameters/display.yaml')
