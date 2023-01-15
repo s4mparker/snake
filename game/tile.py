@@ -19,7 +19,7 @@ class Tile:
 
         self.id         = Sequencer.generate()
         self.entity     = None
-        self.x = self.y = x, y
+        self.x, self.y  = x, y
         self.neighbours = {k: None for k in Direction}
 
     def __str__(self):
